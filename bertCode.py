@@ -17,15 +17,12 @@ pronoun_gender = {
 def extract_subject_pronouns(text):
     doc = nlp(text)
 
+    # Find named entities or noun subjects
     candidates = [token for token in doc if token.dep_ in ("nsubj", "nsubjpass") and token.pos_ == "PROPN"]
     main_subject = candidates[0] if candidates else None
 
-    pronouns = []
-    for token in doc:
-        if token.pos_ == "PRON" and token.text.lower() in pronoun_gender:
-            # Approximate coreference by checking if pronoun is in same sentence
-            if main_subject and token.sent == main_subject.sent:
-                pronouns.append(token.text.lower())
+    # Collect gendered pronouns across the document
+    pronouns = [token.text.lower() for token in doc if token.pos_ == "PRON" and token.text.lower() in pronoun_gender]
 
     # Count and infer gender
     gender_counts = {"he/him": 0, "she/her": 0, "they/them": 0}
